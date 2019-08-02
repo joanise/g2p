@@ -11,7 +11,7 @@ from typing import List, Union
 class Story:
     '''
     Initialize class with path (json,data,word document).
-    Accesses story data.
+    Access story data.
     '''
     def __init__(self, path: str):
         '''
@@ -63,7 +63,7 @@ class Stats(Story):
         Count the number of words in a line and count the number of words which do not match between two lists.
         Print the percentage of words which do not match.
         '''
-        #returns the number of words per line
+        #breaks line into words
         base_words = self.base_string.split()
         compare_words = self.compare_string.split()
 
@@ -88,16 +88,37 @@ class Stats(Story):
 
         '''
         
-        #gets number of characters which do not match per line
-        char_mismatch_count = 0
-        for word in self.base_string:
-            if word != word in self.compare_string:
-                for char in word in self.base_string:
-                    if char != char in word in self.compare_string:
+       #breaks line into words
+        base_words = self.base_string.split()
+        compare_words = self.compare_string.split()
+        
+        #turns the words into a list and compares two lists by index
+        #identifies mismatches and splits mismatched words into characters
+        for index, word in enumerate(base_words):
+            try:
+                if word != compare_words[index]:
+                    base_chars = base_words.split()
+                    compare_chars = compare_chars.split()
+
+            except IndexError:
+                #TODO: put log message here
+                pass
+            
+            #counts the number of words that don't match and prints the percentage error rate
+            char_mismatch_count = 0
+            for index,char in enumerate(base_chars):
+                try:
+                    if char != compare_chars[index]:
                         char_mismatch_count += 1
-                    return char_mismatch_count   
-            else:
-                continue
+               
+                except IndexError:
+                    #TODO: put log message here
+                    pass
+        
+        char_mismatch_percentage = (char_mismatch_count / len(base_chars)) * 100
+        # TODO: log this as INFO
+        print("The word error rate is" + str(char_mismatch_percentage) + "%")
+        return char_mismatch_percentage
 
 
 

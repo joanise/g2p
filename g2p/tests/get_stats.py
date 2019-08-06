@@ -6,6 +6,7 @@ from g2p.tests.private.git_data_wrangler import returnLinesFromDocuments
 from g2p.tests.private import __file__ as private_dir_f
 from g2p.mappings import Mapping
 from g2p.transducer import CompositeTransducer, Transducer
+from g2p.log import LOGGER
 from typing import List, Union
 
 class Story:
@@ -74,11 +75,13 @@ class Stats(Story):
                 if word != compare_words[index]:
                     word_mismatch_count += 1
             except IndexError:
-                #TODO: put log message here
+                LOGGER.info('The indexes were not able to be compared. Check for irregular formatting of input data.',
+                            index, word, enumerate(base_words),compare_words)
                 pass
         
         mismatch_percentage = (word_mismatch_count / len(base_words)) * 100
-        # TODO: log this as INFO
+        LOGGER.info('Word percentage error rate was not calculated correctly. Check that counter is functioning as expected.', 
+                    mismatch_percentage, word_mismatch_count, len(base_words))
         print("The word error rate is" + str(mismatch_percentage) + "%")
         return mismatch_percentage
 
@@ -101,7 +104,8 @@ class Stats(Story):
                     compare_chars = compare_chars.split()
 
             except IndexError:
-                #TODO: put log message here
+                LOGGER.info('The words were not able to be split into characters. Check for irregular formatting of input data.', 
+                            base_words.split(), compare_words.split(),base_chars, compare_chars)
                 pass
             
             #counts the number of words that don't match and prints the percentage error rate
@@ -112,17 +116,17 @@ class Stats(Story):
                         char_mismatch_count += 1
                
                 except IndexError:
-                    #TODO: put log message here
+                    LOGGER.info('The indexes were not able to be compared.Check for irregular formatting of input data.',
+                                index, char, enumerate(base_chars),compare_chars)
                     pass
         
         char_mismatch_percentage = (char_mismatch_count / len(base_chars)) * 100
-        # TODO: log this as INFO
+        LOGGER.info('Word percentage error rate was not calculated correctly. Check that counter is functioning as expected.', 
+                    char_mismatch_percentage, char_mismatch_count, len(base_chars))
         print("The word error rate is" + str(char_mismatch_percentage) + "%")
         return char_mismatch_percentage
 
 
-
-    
 
 if __name__ == '__main__':
     orth_to_ipa_mapping = Mapping(

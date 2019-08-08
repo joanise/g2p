@@ -94,38 +94,37 @@ class Stats:
         #splits mismatched words into characters
         #turns base_word string into an indexed list of words
         word_mismatch_count = 0
+        mismatch_words = []
         for index, word in enumerate(base_words):
             try:
                 #identifies mismatches
                 if word != compare_words[index]:
                     #+1 if there is a mismatched word
                     word_mismatch_count += 1
-                    #create a new list
-                    mismatch_words = []
-                    #add mismatche words to new list
-                    mismatch_words.append(word)
-
+                    #add mismatched word with compare word to new list
+                    mismatch_words.append((word, compare_words[index]))
                     #split words into characters
-                    base_chars = base_words.split()
-                    compare_chars = mismatch_words.split()
+                    base_chars = word.split()
+                    compare_chars = compare_words[index].split()
+                    
+                    #counts the number of words that don't match and prints the percentage error rate
+                    char_mismatch_count = 0
+                    for index, char in enumerate(base_chars):
+                        try:
+                            if char != compare_chars[index]:
+                                char_mismatch_count += 1
+                        except IndexError:
+                            LOGGER.info('The indexes were not able to be compared.Check for irregular formatting of input data.')
 
             except IndexError:
                 LOGGER.info('The words were not able to be split into characters. Check for irregular formatting of input data.')
             
-            #counts the number of words that don't match and prints the percentage error rate
-            char_mismatch_count = 0
-            for index,char in enumerate(base_chars):
-                try:
-                    if char != compare_chars[index]:
-                        char_mismatch_count += 1
-               
-                except IndexError:
-                    LOGGER.info('The indexes were not able to be compared.Check for irregular formatting of input data.')
+           
         
         char_mismatch_percentage = (char_mismatch_count / len(base_chars)) * 100
         # LOGGER.info('Word percentage error rate was not calculated correctly. Check that counter is functioning as expected.')
         print("The word error rate is" + str(char_mismatch_percentage) + "%")
-        return char_mismatch_percentage
+        return char_mismatch_percentage, mismatch_words
 
 class StatsTest(TestCase):
     ''' Basic Test for Stats
@@ -135,24 +134,25 @@ class StatsTest(TestCase):
         pass
 
     def test_basic_word_comparision(self):
-        #match 2 identical strings. Should return 0%
-        self.testwords("Hello world", "Hello world")
-        self.AssertEqual(mismatch_percentage, "0%")
-        #compare 2 strings with some mismatches. Should assert a %
-        self.test_words("Hello world", "Hello earth")
-        self.self.AssertEqual(word_mismatch_count, 1)
-        self.AssertEqual(mismatch_count, "50%")
-        #compare 2 strings with 0 matches. Should return 100%
-        self.test_words("Hello world", "Hi earth")
-        self.AssertEqual(mismatch_percentage, "100%")
-        #compare 2 strings of different length
-        self.test_words("Hello world", "Hello great big world")
-        self.AssertEqual(mismatch_count, 2)
-        self.AssertEqual(mismatch_percentage, "50%")
         pass
+        #match 2 identical strings. Should return 0%
+        # self.testwords("Hello world", "Hello world")
+        # self.AssertEqual(mismatch_percentage, "0%")
+        # #compare 2 strings with some mismatches. Should assert a %
+        # self.test_words("Hello world", "Hello earth")
+        # self.self.AssertEqual(word_mismatch_count, 1)
+        # self.AssertEqual(mismatch_count, "50%")
+        # #compare 2 strings with 0 matches. Should return 100%
+        # self.test_words("Hello world", "Hi earth")
+        # self.AssertEqual(mismatch_percentage, "100%")
+        # #compare 2 strings of different length
+        # self.test_words("Hello world", "Hello great big world")
+        # self.AssertEqual(mismatch_count, 2)
+        # self.AssertEqual(mismatch_percentage, "50%")
+        # pass
 
     #new method tests intentionally mismatched strings. Assert raise
-    def 
+    # def 
 
     def test_basic_character_comparison(self):
         pass
@@ -168,6 +168,7 @@ if __name__ == '__main__':
     # private_dir = os.path.dirname(private_dir_f)
     # story_json = Story(os.path.join(private_dir, 'BS - Dihlxw', 'Dihlxw Story 2013-04-29 for HD copy - clean.json'))  
     # story_docx = Story(os.path.join(private_dir, 'BS - Dihlxw', 'Dihlxw Story 2013-04-29 for HD copy - clean.docx')) 
-    # stats = Stats('this is a test', 'this is a pest')
+    stats = Stats('this is a test', 'this is a pest')
+    print(stats.test_characters())
     # breakpoint()
     main()

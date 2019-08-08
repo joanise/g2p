@@ -84,8 +84,6 @@ class Stats:
 
     def test_characters(self):
         '''
-        Calculates the number of characters per word in a line.
-
         '''
         
        #breaks line into words
@@ -93,13 +91,23 @@ class Stats:
         compare_words = self.compare_string.split()
         #TODO: Comment through this to determine what you *actually* want to be doing. This produces errors.
         #TODO: write a unit test
-        #turns the words into a list and compares two lists by index
-        #identifies mismatches and splits mismatched words into characters
+        #splits mismatched words into characters
+        #turns base_word string into an indexed list of words
+        word_mismatch_count = 0
         for index, word in enumerate(base_words):
             try:
+                #identifies mismatches
                 if word != compare_words[index]:
+                    #+1 if there is a mismatched word
+                    word_mismatch_count += 1
+                    #create a new list
+                    mismatch_words = []
+                    #add mismatche words to new list
+                    mismatch_words.append(word)
+
+                    #split words into characters
                     base_chars = base_words.split()
-                    compare_chars = compare_chars.split()
+                    compare_chars = mismatch_words.split()
 
             except IndexError:
                 LOGGER.info('The words were not able to be split into characters. Check for irregular formatting of input data.')
@@ -127,8 +135,25 @@ class StatsTest(TestCase):
         pass
 
     def test_basic_word_comparision(self):
+        #match 2 identical strings. Should return 0%
+        self.testwords("Hello world", "Hello world")
+        self.AssertEqual(mismatch_percentage, "0%")
+        #compare 2 strings with some mismatches. Should assert a %
+        self.test_words("Hello world", "Hello earth")
+        self.self.AssertEqual(word_mismatch_count, 1)
+        self.AssertEqual(mismatch_count, "50%")
+        #compare 2 strings with 0 matches. Should return 100%
+        self.test_words("Hello world", "Hi earth")
+        self.AssertEqual(mismatch_percentage, "100%")
+        #compare 2 strings of different length
+        self.test_words("Hello world", "Hello great big world")
+        self.AssertEqual(mismatch_count, 2)
+        self.AssertEqual(mismatch_percentage, "50%")
         pass
-    
+
+    #new method tests intentionally mismatched strings. Assert raise
+    def 
+
     def test_basic_character_comparison(self):
         pass
 

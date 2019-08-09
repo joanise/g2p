@@ -66,6 +66,8 @@ class Stats:
         #breaks line into words
         base_words = self.base_string.split()
         compare_words = self.compare_string.split()
+        print(base_words)
+        print(compare_words)
 
         #counts the number of words that don't match and prints the percentage error rate
         word_mismatch_count = 0
@@ -89,30 +91,30 @@ class Stats:
        #breaks line into words
         base_words = self.base_string.split()
         compare_words = self.compare_string.split()
-        #TODO: Comment through this to determine what you *actually* want to be doing. This produces errors.
+        
         #TODO: write a unit test
-        #splits mismatched words into characters
+        
         #turns base_word string into an indexed list of words
-        word_mismatch_count = 0
         mismatch_words = []
         for index, word in enumerate(base_words):
             try:
                 #identifies mismatches
                 if word != compare_words[index]:
-                    #+1 if there is a mismatched word
-                    word_mismatch_count += 1
                     #add mismatched word with compare word to new list
                     mismatch_words.append((word, compare_words[index]))
-                    #split words into characters
-                    base_chars = word.split()
-                    compare_chars = compare_words[index].split()
+                    #split words into characters and stores them in lists
+                    base_chars = [char for char in word]
+                    compare_chars = [char for char in compare_words[index]]                    
                     
-                    #counts the number of words that don't match and prints the percentage error rate
-                    char_mismatch_count = 0
+                    #turns base_chars in to an indexed list of characters
+                    mismatch_chars = []
                     for index, char in enumerate(base_chars):
                         try:
+                            #compares with compare_chars by index
                             if char != compare_chars[index]:
-                                char_mismatch_count += 1
+                                #add mismatched word with compare word to new list
+                                mismatch_chars.append((char, compare_chars[index]))
+                                char_mismatch_count = len(mismatch_chars)
                         except IndexError:
                             LOGGER.info('The indexes were not able to be compared.Check for irregular formatting of input data.')
 
@@ -123,8 +125,8 @@ class Stats:
         
         char_mismatch_percentage = (char_mismatch_count / len(base_chars)) * 100
         # LOGGER.info('Word percentage error rate was not calculated correctly. Check that counter is functioning as expected.')
-        print("The word error rate is" + str(char_mismatch_percentage) + "%")
-        return char_mismatch_percentage, mismatch_words
+        print("The character error rate is " + str(char_mismatch_percentage) + "%")
+        return char_mismatch_percentage, mismatch_words, mismatch_chars
 
 class StatsTest(TestCase):
     ''' Basic Test for Stats
@@ -169,6 +171,7 @@ if __name__ == '__main__':
     # story_json = Story(os.path.join(private_dir, 'BS - Dihlxw', 'Dihlxw Story 2013-04-29 for HD copy - clean.json'))  
     # story_docx = Story(os.path.join(private_dir, 'BS - Dihlxw', 'Dihlxw Story 2013-04-29 for HD copy - clean.docx')) 
     stats = Stats('this is a test', 'this is a pest')
+    print(stats.test_characters())
     print(stats.test_characters())
     # breakpoint()
     main()

@@ -154,18 +154,20 @@ class StatsTest(TestCase):
         '''
         stats_one_diff = Stats('test', 'pest')
         self.assertEqual(stats_one_diff.compare_characters(), (25, [('test', 'pest')], [('t', 'p')]))
-       # stats_all_diff = Stats('test', 'step')
-       # self.assertEqual(stats_all_diff.compare_characters(), (100, [('test', 'step')], [('t', 's'), ('e', 't'), ('s', 'e'), ('t', 'p')]))
+        stats_all_diff = Stats('test', 'step')
+        self.assertEqual(stats_all_diff.compare_characters(), (100, [('test', 'step')], [('t', 's'), ('e', 't'), ('s', 'e'), ('t', 'p')]))
 
     def test_unequal_word_length(self):
         ''' Test two strings with differing numbers of words
         '''
         stats_unequal_end = Stats('this is a test', 'this is a test case')
         self.assertEqual(stats_unequal_end.compare_words(), 20)  
-        #stats_unequal_mid = Stats('This test is mine', 'This test is not mine')
-        #self.assertEqual(stats_unequal_mid.compare_words(), 20) #TODO: This is wrong! Refactor Stats to allow for mid words not lining up
+        stats_unequal_mid = Stats('This test is mine', 'This test is not mine')
+        self.assertEqual(stats_unequal_mid.compare_words(), 20) #TODO: This is wrong! Refactor Stats to allow for mid words not lining up
     
-    #def test_unequal_char_length(self):
+    def test_unequal_char_length(self):
+        '''Test two words with differing numbers of characters
+        '''
        # stats_unequal_char_end = Stats('test', 'tests')
        # self.assertEqual(stats_unequal_char_end.compare_characters(), (20, [('test', 'tests')], [('', 's')])
         

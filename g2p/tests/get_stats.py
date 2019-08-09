@@ -150,39 +150,28 @@ class StatsTest(TestCase):
         self.assertEqual(stats.compare_words(), 100)
 
     def test_char_mismatch(self):
-        ''' Test two strings differing by one character
+        ''' Test two strings differing by one character and by all characters
         '''
-        stats = Stats('test', 'pest')
-        self.assertEqual(stats.compare_characters(), (25, [('test', 'pest')], [('t', 'p')]))
+        stats_one_diff = Stats('test', 'pest')
+        self.assertEqual(stats_one_diff.compare_characters(), (25, [('test', 'pest')], [('t', 'p')]))
+       # stats_all_diff = Stats('test', 'step')
+       # self.assertEqual(stats_all_diff.compare_characters(), (100, [('test', 'step')], [('t', 's'), ('e', 't'), ('s', 'e'), ('t', 'p')]))
 
-    def test_unequal_length(self):
+    def test_unequal_word_length(self):
         ''' Test two strings with differing numbers of words
         '''
         stats_unequal_end = Stats('this is a test', 'this is a test case')
-        self.assertEqual(stats_unequal_end.compare_words(), 20)  # TODO: This is wrong! This should be 1/5 20% error. Refactor Stats to assign *longest* string as base.
+        self.assertEqual(stats_unequal_end.compare_words(), 20)  
+        #stats_unequal_mid = Stats('This test is mine', 'This test is not mine')
+        #self.assertEqual(stats_unequal_mid.compare_words(), 20) #TODO: This is wrong! Refactor Stats to allow for mid words not lining up
+    
+    #def test_unequal_char_length(self):
+       # stats_unequal_char_end = Stats('test', 'tests')
+       # self.assertEqual(stats_unequal_char_end.compare_characters(), (20, [('test', 'tests')], [('', 's')])
+        
+        
 
-    def test_basic_word_comparision(self):
-        pass
-        #match 2 identical strings. Should return 0%
-        # self.testwords("Hello world", "Hello world")
-        # self.AssertEqual(mismatch_percentage, "0%")
-        # #compare 2 strings with some mismatches. Should assert a %
-        # self.test_words("Hello world", "Hello earth")
-        # self.self.AssertEqual(word_mismatch_count, 1)
-        # self.AssertEqual(mismatch_count, "50%")
-        # #compare 2 strings with 0 matches. Should return 100%
-        # self.test_words("Hello world", "Hi earth")
-        # self.AssertEqual(mismatch_percentage, "100%")
-        # #compare 2 strings of different length
-        # self.test_words("Hello world", "Hello great big world")
-        # self.AssertEqual(mismatch_count, 2)
-        # self.AssertEqual(mismatch_percentage, "50%")
-        # pass
-
-    def test_basic_character_comparison(self):
-        pass
-
-if __name__ == '__main__':
+if __name__ == '__main__': 
     # orth_to_ipa_mapping = Mapping(
     #         language={"lang": "git", "table": "Orthography (Deterministic)"})
     # ipa_to_apa_mapping = Mapping(

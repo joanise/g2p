@@ -54,11 +54,16 @@ class Story:
         return json_data
 
 class Stats:
-    def __init__(self, base_string: str, compare_string: str): 
-        self.base_string = base_string
-        self.compare_string = compare_string
+    def __init__(self, s1: str, s2: str):
+        if len(s1) == len(s2):
+            self.base_string = s1
+            self.compare_string = s2
+        else:
+            # Assign longest string as base, shorter as compare
+            self.base_string = max(s1, s2)
+            self.compare_string = min(s1, s2)
       
-    def test_words(self):
+    def compare_words(self):
         '''
         Count the number of words in a line and count the number of words which do not match between two lists.
         Print the percentage of words which do not match.
@@ -70,22 +75,19 @@ class Stats:
         print(compare_words)
 
         #counts the number of words that don't match and prints the percentage error rate
-        word_mismatch_count = 0
+        mismatched_words = []
         for index, word in enumerate(base_words):
             try:
                 if word != compare_words[index]:
-                    word_mismatch_count += 1
+                    mismatched_words.append((word, compare_words[index]))
             except IndexError:
-                LOGGER.info('The indexes were not able to be compared. Check for irregular formatting of input data.')
-        
-        mismatch_percentage = (word_mismatch_count / len(base_words)) * 100
-        # LOGGER.info('Word percentage error rate was not calculated correctly. Check that counter is functioning as expected.', 
-        #             mismatch_percentage, word_mismatch_count, len(base_words))
+                mismatched_words.append((word, None))
+        mismatch_percentage = (len(mismatched_words) / len(base_words)) * 100
         LOGGER.info("The word error rate is " + str(round(mismatch_percentage, 2)) + "%")
         return mismatch_percentage
 
-    def test_characters(self):
-        '''
+    def compare_characters(self):
+        ''' TODO: Add docstring
         '''
         
        #breaks line into words
@@ -135,6 +137,30 @@ class StatsTest(TestCase):
         # Any setup goes here
         pass
 
+    def test_identical(self):
+        ''' Test two identical strings
+        '''
+        stats = Stats('test', 'test')
+        self.assertEqual(stats.compare_words(), 0)
+
+    def test_word_mismatch(self):
+        ''' Test two non-identical words
+        '''
+        stats = Stats('test', 'pest')
+        self.assertEqual(stats.compare_words(), 100)
+
+    def test_char_mismatch(self):
+        ''' Test two strings differing by one character
+        '''
+        stats = Stats('test', 'pest')
+        self.assertEqual(stats.compare_characters(), (25, [('test', 'pest')], [('t', 'p')]))
+
+    def test_unequal_length(self):
+        ''' Test two strings with differing numbers of words
+        '''
+        stats_unequal_end = Stats('this is a test', 'this is a test case')
+        self.assertEqual(stats_unequal_end.compare_words(), 20)  # TODO: This is wrong! This should be 1/5 20% error. Refactor Stats to assign *longest* string as base.
+
     def test_basic_word_comparision(self):
         pass
         #match 2 identical strings. Should return 0%
@@ -153,9 +179,6 @@ class StatsTest(TestCase):
         # self.AssertEqual(mismatch_percentage, "50%")
         # pass
 
-    #new method tests intentionally mismatched strings. Assert raise
-    # def 
-
     def test_basic_character_comparison(self):
         pass
 
@@ -170,8 +193,5 @@ if __name__ == '__main__':
     # private_dir = os.path.dirname(private_dir_f)
     # story_json = Story(os.path.join(private_dir, 'BS - Dihlxw', 'Dihlxw Story 2013-04-29 for HD copy - clean.json'))  
     # story_docx = Story(os.path.join(private_dir, 'BS - Dihlxw', 'Dihlxw Story 2013-04-29 for HD copy - clean.docx')) 
-    stats = Stats('this is a test', 'this is a pest')
-    print(stats.test_characters())
-    print(stats.test_characters())
     # breakpoint()
     main()

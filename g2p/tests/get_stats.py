@@ -168,8 +168,10 @@ class StatsTest(TestCase):
     def test_unequal_char_length(self):
         '''Test two words with differing numbers of characters
         '''
-       # stats_unequal_char_end = Stats('test', 'tests')
-       # self.assertEqual(stats_unequal_char_end.compare_characters(), (20, [('test', 'tests')], [('', 's')])
+        #stats_unequal_char_end = Stats('test', 'tests')
+        #self.assertEqual(stats_unequal_char_end.compare_characters(), (20, [('test', 'tests')], [('', 's')])
+        #stats_unequal_char_mid = Stats('test', 'teast')
+        #self.assertEqual(stats_unequal_char_mid.compare_characters(), (20, [('test', 'teast')], [('', 'a')])
         
         
 

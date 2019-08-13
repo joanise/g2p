@@ -116,7 +116,6 @@ class Stats:
                             if char != compare_chars[index]:
                                 #add mismatched word with compare word to new list
                                 mismatch_chars.append((char, compare_chars[index]))
-                                char_mismatch_count = len(mismatch_chars)
                         except IndexError:
                             LOGGER.info('The indexes were not able to be compared.Check for irregular formatting of input data.')
 
@@ -125,7 +124,7 @@ class Stats:
             
            
         
-        char_mismatch_percentage = (char_mismatch_count / len(base_chars)) * 100
+        char_mismatch_percentage = (len(mismatch_chars) / len(base_chars)) * 100
         # LOGGER.info('Word percentage error rate was not calculated correctly. Check that counter is functioning as expected.')
         print("The character error rate is " + str(char_mismatch_percentage) + "%")
         return char_mismatch_percentage, mismatch_words, mismatch_chars

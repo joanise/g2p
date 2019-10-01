@@ -136,14 +136,9 @@ class Stats:
                             mismatch_words.append((word, compare_words[word_index+offset]))
                             word_index += offset
                             break 
-                        #resets the offset of indexes for the characters
-                        elif offset >= 1:
-                            offset = 0
-                            break
-                        #if the word index +1 is smaller than the length of the compare words, add one to the offset
-                        elif word_index+1 < len(compare_words):
-                            offset += 1
+                        #otherwise if more than 75% of the word is wrong, add one to the offset and try again
                         else:
+                            offset += 1
                             break
                     else:
                         break

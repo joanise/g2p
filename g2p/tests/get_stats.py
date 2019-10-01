@@ -101,6 +101,9 @@ class Stats:
         mismatch_words = []
         #unequal_words contains words that are not exact matches
         unequal_words = []
+        # threshold for deciding what is a g2p error and what is a offset error
+        threshold = 75
+        under_threshold_mismatch_words = [] # these are words that are under the threshold
         char_mismatch_percentage = 0
         #sets count for indexes in compare_words
         offset = 0
@@ -129,13 +132,11 @@ class Stats:
                         #calculates the character mismatch percentage
                         char_mismatch_percentage = int((len(mismatch_chars) / len(base_chars)) * 100)
                         #for a character error rate of less than or equal to 75%
-                        if char_mismatch_percentage <= 75:
-                            
+                        if char_mismatch_percentage <= threshold:
                             LOGGER.info('mismatch words: {}'.format(mismatch_words))
                             #add mismatched word with compare word to new list
-                            mismatch_words.append((word, compare_words[word_index+offset]))
-                            word_index += offset
-                            break 
+                            under_threshold_mismatch_words.append((word, compare_words[word_index+offset]))
+                            break
                         #otherwise if more than 75% of the word is wrong, add one to the offset and try again
                         else:
                             offset += 1
@@ -149,9 +150,9 @@ class Stats:
             
         # LOGGER.info('Word percentage error rate was not calculated correctly. Check that counter is functioning as expected.')
         print("The character error rate is " + str(char_mismatch_percentage) + "%")
-        mismatch_percentage = int((len(unequal_words) / len(base_words)) * 100)
+        mismatch_percentage = int((len(under_threshold_mismatch_words) / len(base_words)) * 100)
         LOGGER.info("The word error rate is " + str(round(mismatch_percentage, 2)) + "%")
-        return char_mismatch_percentage, mismatch_words, mismatch_percentage
+        return char_mismatch_percentage, under_threshold_mismatch_words, mismatch_percentage
 
 class StatsTest(TestCase):
     ''' Basic Test for Stats
@@ -173,7 +174,7 @@ class StatsTest(TestCase):
         '''
         print("test_word_mismatch")
         stats = Stats('test', 'pest')
-        self.assertEqual(stats.compare_characters(), (25,[], 100))
+        self.assertEqual(stats.compare_characters(), (25, [('test', 'pest')], 100))
 
     def test_char_mismatch(self):
         ''' Test two strings differing by one character and by all characters
@@ -200,10 +201,10 @@ class StatsTest(TestCase):
         '''
         print("test_unequal_char_length1")
         stats_unequal_char_end = Stats('test', 'tests')
-        self.assertEqual(stats_unequal_char_end.compare_characters(), (20, [('test', 'tests')], 100))
+        self.assertEqual(stats_unequal_char_end.compare_characters(), (20, [('tests', 'test')], 100)) # TODO: This is producing 0 but should produce 1
         print("test_unequal_char_length2")
         stats_unequal_char_mid = Stats('test', 'teast')
-        self.assertEqual(stats_unequal_char_mid.compare_characters(), (20, [('test', 'teast')],100))
+        self.assertEqual(stats_unequal_char_mid.compare_characters(), (20, [('test', 'teast')],100)) # TODO: This is producing 50 but should produce 20
         
 
 if __name__ == '__main__': 

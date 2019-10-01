@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 from unittest import main, TestCase
 import json
 
@@ -98,36 +99,64 @@ class Stats:
         
         #turns base_word string into an indexed list of words
         mismatch_words = []
-        for index, word in enumerate(base_words):
+        #unequal_words contains words that are not exact matches
+        unequal_words = []
+        char_mismatch_percentage = 0
+        #sets count for indexes in compare_words
+        offset = 0
+        for word_index, word in enumerate(base_words):
             try:
-                #identifies mismatches
-                if word != compare_words[index]:
-                    #add mismatched word with compare word to new list
-                    mismatch_words.append((word, compare_words[index]))
-                    #split words into characters and stores them in lists
-                    base_chars = [char for char in word]
-                    compare_chars = [char for char in compare_words[index]]                    
-                    
-                    #turns base_chars in to an indexed list of characters
-                    mismatch_chars = []
-                    for index, char in enumerate(base_chars):
-                        try:
-                            #compares with compare_chars by index
-                            if char != compare_chars[index]:
-                                #add mismatched word with compare word to new list
-                                mismatch_chars.append((char, compare_chars[index]))
-                        except IndexError:
-                            LOGGER.info('The indexes were not able to be compared.Check for irregular formatting of input data.')
+                while offset <= 1:
+                    #identifies mismatches
+                    if word != compare_words[word_index+offset]:
+                        #adds mismatched words to unequal_words
+                        unequal_words.append(compare_words[word_index+offset])
+                        #split words into characters and stores them in lists
+                        base_chars = [char for char in word]
+                        compare_chars = [char for char in compare_words[word_index+offset]]                    
+                        
+                        #turns base_chars in to an indexed list of characters
+                        mismatch_chars = []
+                        for char_index, char in enumerate(base_chars):
+                            try:
+                                #compares with compare_chars by index
+                                if char != compare_chars[char_index]:
+                                    #add mismatched word with compare word to new list
+                                    mismatch_chars.append((char, compare_chars[char_index]))
+                                    
+                            except IndexError:
+                                LOGGER.info('The indexes for chars were not able to be compared.Check for irregular formatting of input data.')
+                        #calculates the character mismatch percentage
+                        char_mismatch_percentage = int((len(mismatch_chars) / len(base_chars)) * 100)
+                        #for a character error rate of less than or equal to 75%
+                        if char_mismatch_percentage <= 75:
+                            
+                            LOGGER.info('mismatch words: {}'.format(mismatch_words))
+                            #add mismatched word with compare word to new list
+                            mismatch_words.append((word, compare_words[word_index+offset]))
+                            word_index += offset
+                            break 
+                        #resets the offset of indexes for the characters
+                        elif offset >= 1:
+                            offset = 0
+                            break
+                        #if the word index +1 is smaller than the length of the compare words, add one to the offset
+                        elif word_index+1 < len(compare_words):
+                            offset += 1
+                        else:
+                            break
+                    else:
+                        break
 
             except IndexError:
                 LOGGER.info('The words were not able to be split into characters. Check for irregular formatting of input data.')
+                
             
-           
-        
-        char_mismatch_percentage = (len(mismatch_chars) / len(base_chars)) * 100
         # LOGGER.info('Word percentage error rate was not calculated correctly. Check that counter is functioning as expected.')
         print("The character error rate is " + str(char_mismatch_percentage) + "%")
-        return char_mismatch_percentage, mismatch_words, mismatch_chars
+        mismatch_percentage = int((len(unequal_words) / len(base_words)) * 100)
+        LOGGER.info("The word error rate is " + str(round(mismatch_percentage, 2)) + "%")
+        return char_mismatch_percentage, mismatch_words, mismatch_percentage
 
 class StatsTest(TestCase):
     ''' Basic Test for Stats
@@ -139,38 +168,47 @@ class StatsTest(TestCase):
     def test_identical(self):
         ''' Test two identical strings
         '''
+        print("test_identical")
         stats = Stats('test', 'test')
-        self.assertEqual(stats.compare_words(), 0)
+        print("stats")
+        self.assertEqual(stats.compare_characters(),(0,[],0))
 
     def test_word_mismatch(self):
         ''' Test two non-identical words
         '''
+        print("test_word_mismatch")
         stats = Stats('test', 'pest')
-        self.assertEqual(stats.compare_words(), 100)
+        self.assertEqual(stats.compare_characters(), (25,[], 100))
 
     def test_char_mismatch(self):
         ''' Test two strings differing by one character and by all characters
         '''
+        print("test_char_mismatch1")
         stats_one_diff = Stats('test', 'pest')
-        self.assertEqual(stats_one_diff.compare_characters(), (25, [('test', 'pest')], [('t', 'p')]))
+        self.assertEqual(stats_one_diff.compare_characters(), (25, [('test', 'pest')],100))
+        print("test_char_mismatch2")
         stats_all_diff = Stats('test', 'step')
-        self.assertEqual(stats_all_diff.compare_characters(), (100, [('test', 'step')], [('t', 's'), ('e', 't'), ('s', 'e'), ('t', 'p')]))
+        self.assertEqual(stats_all_diff.compare_characters(), (100, [('test', 'step')],100))
 
     def test_unequal_word_length(self):
         ''' Test two strings with differing numbers of words
         '''
-        stats_unequal_end = Stats('this is a test', 'this is a test case')
-        self.assertEqual(stats_unequal_end.compare_words(), 20)  
+        print("test_unequal_word_length1")
+        stats_unequal_end = Stats('this is a test case', 'this is a test')
+        self.assertEqual(stats_unequal_end.compare_characters(),(0, [], 20)) 
+        print("test_unequal_word_length2")
         stats_unequal_mid = Stats('This test is mine', 'This test is not mine')
-        self.assertEqual(stats_unequal_mid.compare_words(), 20) #TODO: This is wrong! Refactor Stats to allow for mid words not lining up
-    
+        self.assertEqual(stats_unequal_mid.compare_characters(), (0, [], 20)) 
+
     def test_unequal_char_length(self):
         '''Test two words with differing numbers of characters
         '''
+        print("test_unequal_char_length1")
         stats_unequal_char_end = Stats('test', 'tests')
-        self.assertEqual(stats_unequal_char_end.compare_characters(), (20, [('test', 'tests')], [('', 's')]))
+        self.assertEqual(stats_unequal_char_end.compare_characters(), (20, [('test', 'tests')], 100))
+        print("test_unequal_char_length2")
         stats_unequal_char_mid = Stats('test', 'teast')
-        self.assertEqual(stats_unequal_char_mid.compare_characters(), (20, [('test', 'teast')], [('', 'a')]))
+        self.assertEqual(stats_unequal_char_mid.compare_characters(), (20, [('test', 'teast')],100))
         
 
 if __name__ == '__main__': 
@@ -184,5 +222,4 @@ if __name__ == '__main__':
     # private_dir = os.path.dirname(private_dir_f)
     # story_json = Story(os.path.join(private_dir, 'BS - Dihlxw', 'Dihlxw Story 2013-04-29 for HD copy - clean.json'))  
     # story_docx = Story(os.path.join(private_dir, 'BS - Dihlxw', 'Dihlxw Story 2013-04-29 for HD copy - clean.docx')) 
-    # breakpoint()
     main()

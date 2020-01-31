@@ -132,9 +132,13 @@ class Transducer():
             # TODO: do we need intermediate output?
             for index, input_char in enumerate(input_string):
                 # prevent feeding rules from leaving traces
+                # FIXME: This will give an index error if one of the rules contains a regex
+                #       like a|b -> c because the index for the input will be the length (3) 
+                #       instead of just 1 (either side of the | operator). This should be fixed.
+                #       https://github.com/roedoejet/g2p/issues/9
                 if original_str[index + input_index] == input_char:
                     new_input[input_index + index] = {'input_string': input_char,
-                                                      'output': new_output}
+                                                    'output': new_output}
 
             return {**intermediate_index, **new_input}
 
@@ -262,9 +266,6 @@ class Transducer():
                             if non_null_index:
                                 rule_applied = True
                                 new_index = {**new_index, **non_null_index}
-                        # if you've gone past the input_index, you can safely break from the loop
-                        elif match_index > input_index:
-                            break
                 # increase the index counters
                 # new_index = self.convert_index_to_tuples(new_index)
                 # if the rule applied

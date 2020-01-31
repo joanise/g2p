@@ -38,7 +38,7 @@ class Mapping():
         @param escape_special: bool = False
             Escape special characters in rules
 
-        @param norm_form: str = "NFC"
+        @param norm_form: str = "NFD"
             Normalization standard to follow. NFC | NKFC | NFD | NKFD
 
         @param reverse: bool = False
@@ -49,7 +49,8 @@ class Mapping():
     def __init__(self, mapping=None, abbreviations: Union[str, DefaultDict[str, List[str]]] = False, **kwargs):
         # should these just be explicit instead of kwargs...
         self.allowable_kwargs = ['language_name', 'display_name', 'mapping', 'in_lang',
-                                 'out_lang', 'out_delimiter', 'as_is', 'case_sensitive', 'escape_special', 'norm_form', 'reverse']
+                                 'out_lang', 'out_delimiter', 'as_is', 'case_sensitive',
+                                 'escape_special', 'norm_form', 'reverse']
         self.kwargs = OrderedDict(kwargs)
         self.processed = False
         if isinstance(abbreviations, defaultdict) or not abbreviations:
@@ -127,7 +128,7 @@ class Mapping():
         if 'escape_special' not in self.kwargs:
             self.kwargs['escape_special'] = False
         if 'norm_form' not in self.kwargs:
-            self.kwargs['norm_form'] = 'NFC'
+            self.kwargs['norm_form'] = 'NFD'
         if 'reverse' not in self.kwargs:
             self.kwargs['reverse'] = False
         # Process kwargs in order received
@@ -241,10 +242,10 @@ class Mapping():
         filtered = [{k: v for k, v in io.items() if k in fieldnames}
                     for io in self.mapping]
         if file_type == 'json':
-            with open(fn, 'w') as f:
+            with open(fn, 'w', encoding='utf8') as f:
                 json.dump(filtered, f, indent=4)
         elif file_type == 'csv':
-            with open(fn, 'w') as f:
+            with open(fn, 'w', encoding='utf8') as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 for io in filtered:
                     writer.writerow(io)
@@ -267,13 +268,13 @@ class Mapping():
                 "as_is": self.kwargs.get('as_is', False),
                 "case_sensitive": self.kwargs.get('case_sensitive', True),
                 "escape_special": self.kwargs.get('escape_special', False),
-                "norm_form": self.kwargs.get('norm_form', "NFC"),
+                "norm_form": self.kwargs.get('norm_form', "NFD"),
                 "reverse": self.kwargs.get('reverse', False),
                 "mapping": self.kwargs.get('in_lang', 'und') + "_to_" +
                 self.kwargs.get('out_lang', 'und') + "." + mapping_type
             }
         ]}
-        with open(fn, 'w') as f:
+        with open(fn, 'w', encoding='utf8') as f:
             yaml.dump(template, f, Dumper=IndentDumper,
                       default_flow_style=False)
 

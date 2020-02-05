@@ -28,9 +28,9 @@ from g2p.log import LOGGER
 class Mapping():
     """ Class for lookup tables
 
-        @param as_is: bool = False
+        @param as_is: bool = True
             Evaluate g2p rules in mapping in the order they are.
-            Default is to reverse sort them by length.
+            If False, rules will be reverse sorted by length.
 
         @param case_sensitive: bool = True
             Lower all rules and conversion input
@@ -93,8 +93,23 @@ class Mapping():
     def __call__(self):
         return self.mapping
 
+
     def __iter__(self):
         return iter(self.mapping)
+
+    def __getitem__(self, item):
+        if isinstance(item, int):  # item is an integer
+            return self.mapping[item]
+        if isinstance(item, slice):  # item is a slice
+            return self.mapping[item.start or 0:item.stop or len(self.mapping)]
+        else:  # invalid index type
+            raise TypeError('{cls} indices must be integers or slices, not {idx}'.format(
+                cls=type(self).__name__,
+                idx=type(item).__name__,
+            ))
+
+    def index(self, item):
+        return self.mapping.index(item)
 
     def inventory(self, in_or_out: str = 'in'):
         ''' Return just inputs or outputs as inventory of mapping
@@ -122,7 +137,7 @@ class Mapping():
         '''
         # Add defaults
         if 'as_is' not in self.kwargs:
-            self.kwargs['as_is'] = False
+            self.kwargs['as_is'] = True
         if 'case_sensitive' not in self.kwargs:
             self.kwargs['case_sensitive'] = True
         if 'escape_special' not in self.kwargs:
@@ -154,9 +169,23 @@ class Mapping():
         self.processed = True
         return mapping
 
-    def rule_to_regex(self, rule: str) -> Pattern:
+    def rule_to_regex(self, rule: dict) -> Pattern:
         """Turns an input string (and the context) from an input/output pair
-        into a regular expression pattern"""
+        into a regular expression pattern"
+        
+        The 'in' key is the match. 
+        The 'context_after' key creates a lookahead.
+        The 'context_before' key creates a lookbehind.
+
+        Args:
+            rule: A dictionary containing 'in', 'out', 'context_before', and 'context_after' keys
+
+        Raises:
+            Exception: This is raised when un-supported regex characters or symbols exist in the rule
+        
+        Returns:
+            Pattern: returns a regex pattern (re.Pattern)
+        """
         if "context_before" in rule and rule['context_before']:
             before = rule["context_before"]
         else:
@@ -265,7 +294,7 @@ class Mapping():
                 "in_lang": self.kwargs.get('in_lang', 'und'),
                 "out_lang": self.kwargs.get('out_lang', 'und'),
                 "authors": self.kwargs.get('authors', ['generated']),
-                "as_is": self.kwargs.get('as_is', False),
+                "as_is": self.kwargs.get('as_is', True),
                 "case_sensitive": self.kwargs.get('case_sensitive', True),
                 "escape_special": self.kwargs.get('escape_special', False),
                 "norm_form": self.kwargs.get('norm_form', "NFD"),

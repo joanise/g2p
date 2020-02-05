@@ -55,7 +55,7 @@
         <div id='animated' style='display: none'>
             <div class='row'>
                 <div class='columns twelve center-text'>
-                    <form autocomplete='off' autocorrect='off'> 
+                    <form autocomplete='off' autocorrect='off'>
                         <input autocomplete='off' autocorrect='off' id='indexInput' type="text" name="usrname"
                             maxlength="10">
                     </form>
@@ -82,7 +82,6 @@
                     {% endfor %}
                     {% endfor %}
                 </select>
-
             </div>
             <div class='columns six mg-top'>
                 <form id='settings-form'>
@@ -98,8 +97,7 @@
                             <label for='case_sensitive'>Rules are case sensitive</label>
                         </div>
                         <div>
-                            <input id='escape_special' type='checkbox' name='escape_special'
-                                value='escape_special'>
+                            <input id='escape_special' type='checkbox' name='escape_special' value='escape_special'>
                             <label for='escape_special'>Escape special characters</label>
                         </div>
                         <div>
@@ -114,6 +112,7 @@
             <div class='columns twelve'>
                 <h4>Custom Rules</h4>
                 <button id='hot-add'>Add Rule</button>
+                <button id="export-rules">Export</button>
                 <div id="hot"></div>
                 <h4>Rule Creator</h4>
                 <button id='clear'>Clear</button>
@@ -155,19 +154,8 @@
                 <p>Follow the example below to create your own abbreviations to use in your rules.</p>
                 <button id='varhot-add-row'>Add Row</button>
                 <button id='varhot-add-col'>Add Column</button>
+                <button id="export-abbs">Export</button>
                 <div id="varhot"></div>
-            </div>
-        </div>
-        <div class='row'>
-            <div class='columns twelve center-text'>
-                <div class="export-buttons" class="visible">
-                    <button id="export-rules">
-                        Export Rules</button>
-                </div>
-                <div class="export-buttons" class="visible">
-                    <button id="export-abbs">
-                        Export Abbreviations</button>
-                </div>
             </div>
         </div>
     </div>

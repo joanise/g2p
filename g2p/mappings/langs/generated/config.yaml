@@ -11,7 +11,7 @@ mappings:
     language_name: Danish
     mapping: dan-ipa_to_eng-ipa.json
     out_lang: eng-ipa
-  - author: Generated 2020-02-03 13:15:01.006870
+  - author: Generated 2020-02-05 10:41:41.353146
     display_name: French IPA to English IPA
     in_lang: fra-ipa
     language_name: French

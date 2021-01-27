@@ -7,6 +7,8 @@ language's input mapping or that are unicode letters, numbers and diacritics.
 """
 import re
 from g2p.mappings import Mapping
+from g2p.mappings.utils import merge_if_same_label, get_unicode_category
+from g2p.exceptions import MappingMissing
 
 class DefaultTokenizer:
     def __init__(self):
@@ -82,8 +84,12 @@ class TokenizerLibrary:
             # This tokenizer was not created yet, initialize it now.
             if not out_lang:
                 out_lang = in_lang + "-ipa"
-            mapping = Mapping(in_lang=in_lang, out_lang=out_lang)
-            self.tokenizers[tokenizer_key] = Tokenizer(mapping)
+            try:
+                mapping = Mapping(in_lang=in_lang, out_lang=out_lang)
+                self.tokenizers[tokenizer_key] = Tokenizer(mapping)
+            except MappingMissing:
+                self.tokenizers[tokenizer_key] = self.tokenizers[None]
+
         return self.tokenizers.get(tokenizer_key)
 
 

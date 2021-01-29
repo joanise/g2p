@@ -516,6 +516,8 @@ class TokenizedPseudoGraph(TransductionGraph):
         # Plain strings
         self._input_string = input_string
         self._output_string = input_string
+        self._debugger = []
+        self._edges = []
 
     @property
     def input_string(self):
@@ -546,19 +548,11 @@ class TokenizedPseudoGraph(TransductionGraph):
 
     @property
     def edges(self):
-        raise ValueError(f"Sorry, edges is not implemented yet for TokenizedPseudoGraph")
+        return self._edges
 
     @edges.setter
     def edges(self, value):
         raise ValueError(f"Sorry, edges is not implemented yet for TokenizedPseudoGraph")
-
-    @property
-    def debugger(self):
-        raise ValueError(f"Sorry, debugger is not implemented yet for TokenizedPseudoGraph")
-
-    @debugger.setter
-    def debugger(self, value):
-        raise ValueError(f"Sorry, debugger is not implemented yet for TokenizedPseudoGraph")
 
     @property
     def tiers(self):
@@ -578,12 +572,24 @@ class TokenizingTransducer():
         self._tokenizer = tokenizer
 
     def __call__(self, to_convert: str):
+        tg = TokenizedPseudoGraph(to_convert)
         result = ""
         for token in self._tokenizer.tokenize_text(to_convert):
             if token["is_word"]:
-                result += self._transducer(token["text"]).output_string
+                sub_tg = self._transducer(token["text"])
+                result += sub_tg.output_string
+
+                # Debugger option 1: concatenate the sub TG's debuggers as one big list
+                # + if there is only one word, it looks just like it used to
+                # - if there are multiple words, it's less clear what's going on
+                # tg.debugger += sub_tg.debugger
+
+                # Debugger option 2: create a list of lists - concensus: this is better
+                # + the nested structure highlights that each debugger list is for just one token
+                # - the structure of the debugger changes, will that affect clients of api.py?
+                tg.debugger.append(sub_tg.debugger)
+
             else:
                 result += token["text"]
-        tg = TokenizedPseudoGraph(to_convert)
         tg.output_string = result
         return tg

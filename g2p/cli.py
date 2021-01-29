@@ -127,10 +127,11 @@ def convert(in_lang, out_lang, input_text, path, debugger):
         with open(input_text, encoding='utf8') as f:
             input_text = f.read()
     if in_lang and out_lang:
-        transducer = make_g2p(in_lang, out_lang)
+        transducer = make_g2p(in_lang, out_lang, tok_lang=in_lang)
     elif path:
         transducer = Transducer(Mapping(path))
     tg = transducer(input_text)
+    #PRINTER.pprint(tg.pretty_edges())
     if debugger:
         output = [tg.output_string, tg.edges, tg.debugger]
         PRINTER.pprint(output)

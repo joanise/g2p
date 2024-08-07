@@ -9,7 +9,6 @@ on:
 # This **must** match the Major.Minor version of the JSON schema file
 # in g2p/mappings/.schema!!!
 env:
-  SETUPTOOLS_SCM_PRETEND_VERSION: "2.0"
   G2P_STUDIO_DEBUG: 1
 
 jobs:
@@ -18,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up Python
         uses: actions/setup-python@v5
         with:

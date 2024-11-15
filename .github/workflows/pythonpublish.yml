@@ -26,6 +26,9 @@ jobs:
     needs: tests
     steps:
       - uses: actions/checkout@v4
+      - name: Validate version consistency
+        shell: bash
+        run: [[ v$(cat .SETUPTOOLS_SCM_PRETEND_VERSION) == $(echo ${{ github.ref_name }} | cut -d. -f1-2) ]]
       - name: Set up Python
         uses: actions/setup-python@v5
         with:

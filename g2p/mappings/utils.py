@@ -318,7 +318,7 @@ def normalize_to_NFD_with_indices(
     # diacritic reordering
     decomposed = ud.normalize(norm_form, inp)
     # decom
-    decomp_to_use = list(enumerate(decomposed))
+    decomp_to_use = LazyList(enumerate(decomposed))
     indices = []
     # To figure out indices from input characters, decompose them one at a time and
     # look for each character in the jointly decomposed output, allowing for
@@ -1118,3 +1118,78 @@ class _MappingModelDefinition(BaseModel):
                 f"{out_lang} {find_mapping_type(out_lang)}"
             )
         return data
+
+
+class LazyList:
+    """Inspired by more_itertools.peekable, but with support for deletion via pop()
+
+    While peekable lets you look at elements in the list, it does not let you ammend
+    the list. Both are optimized for cases where you're interact with the next few
+    elements of a list, but LazyList support deletion among such interactions, where
+    deleted items are removed from iteration, but not from the original contents.
+
+    pop() and subscripting work the same way they do for lists, except
+     a) indices cannot be negative
+     b) this data structure is optimized for interacting with the first few elements
+        of the list and popping them (not necessarily in order) before continuing
+
+    You can also iterate over a lazylist, but the intent once again is for iteration
+    over the first few elements of the lazy list to find the one you need to pop().
+
+    If you need l[index] or l.pop(index) for an arbitrariy large index, or to iterate
+    over this whole lazy list without popping elements, this data structure is not
+    recommended, use a regular list instead!
+    """
+
+    def __init__(self, contents: Iterable):
+        self._contents = iter(contents)
+        self._peeked: list = []
+
+    def _get_to_index(self, index: int) -> None:
+        # Helper function to move enough elements into _peeked to support operations at index
+        # Also raises IndexError if index is negative or too high
+        # Runtime complexity: O(index)
+        if index < 0:
+            raise IndexError("LazyList does not support negative indices")
+        while len(self._peeked) <= index:
+            try:
+                self._peeked.append(next(self._contents))
+            except StopIteration:
+                raise IndexError("Tried to access index past the end of the LazyList")
+
+    def __getitem__(self, index: int):
+        """Return the element value at position index
+
+        Runtime complexity: O(index)
+
+        Raises: IndexError if index is negative or past the last element in self"""
+        self._get_to_index(index)
+        return self._peeked[index]
+
+    def pop(self, index: int):
+        """Remove and return the element value at position index
+
+        Runtime complexity: O(index)
+
+        Raises: IndexError if index is negative or past the last element in self"""
+        self._get_to_index(index)
+        return self._peeked.pop(index)
+
+    class Iterator:
+        def __init__(self, lazylist: "LazyList"):
+            self.lazylist = lazylist
+            self.position = 0
+
+        def __next__(self):
+            try:
+                value = self.lazylist[self.position]
+            except IndexError:
+                raise StopIteration()
+            self.position += 1
+            return value
+
+    def __iter__(self):
+        """Get an iterator over self.
+
+        Caveat: only optimized for iterating over the first few elements of self"""
+        return self.Iterator(self)

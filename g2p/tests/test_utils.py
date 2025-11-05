@@ -22,7 +22,7 @@ from g2p import get_arpabet_langs
 from g2p._version import VERSION, version_tuple
 from g2p.log import LOGGER
 from g2p.mappings import Mapping, utils
-from g2p.mappings.utils import RULE_ORDERING_ENUM, Rule
+from g2p.mappings.utils import RULE_ORDERING_ENUM, LazyList, Rule
 from g2p.tests.public import PUBLIC_DIR
 
 
@@ -371,6 +371,22 @@ class UtilsTest(TestCase):
                 t1["bad_key"] = "test"
             with self.assertRaises(KeyError):
                 _ = t2["bad_key"]
+
+    def test_lazy_list(self) -> None:
+        lazylist = LazyList(range(10, 20))
+        self.assertEqual(lazylist[3], 13)
+        self.assertEqual(lazylist.pop(5), 15)
+        self.assertEqual(lazylist.pop(6), 17)
+        with self.assertRaises(IndexError):
+            _ = lazylist[-1]
+        with self.assertRaises(IndexError):
+            _ = lazylist[10]
+
+        lazylist = LazyList(range(10, 20))
+        for i in range(5):
+            self.assertEqual(lazylist.pop(0), 10 + i)
+        for i, value in enumerate(lazylist):
+            self.assertEqual(value, i + 15)
 
 
 if __name__ == "__main__":
